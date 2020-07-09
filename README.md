@@ -1,6 +1,6 @@
 # Sagemaker_spoken_language_identification
 
-本项目利用AWS Sagemaker 封装多种语音识别的深度学习算法
+本项目基于 Amazon Sagemaker 实现语音语言种类识别。
 
 ### 准备数据
 
