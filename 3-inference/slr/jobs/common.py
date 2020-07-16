@@ -30,7 +30,8 @@ def remove_file(file):
 
 
 def rename_file(src, dst):
-    os.rename(src, dst)
+    if os.path.exists(src):
+        os.rename(src, dst)
 
 
 def remove_directory(path):
