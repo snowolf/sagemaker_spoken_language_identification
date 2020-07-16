@@ -57,7 +57,7 @@ from sklearn.metrics import classification_report
 from keras.models import Model, load_model, Sequential
 from keras.layers import Conv2D, MaxPooling2D, AveragePooling2D, Dense, Flatten
 from keras.layers import Dropout, Input, Activation
-from keras.optimizers import Nadam, SGD
+from keras.optimizers import Nadam, SGD, Adam
 from keras.preprocessing.image import ImageDataGenerator
 from keras.utils import np_utils
 from keras.callbacks import EarlyStopping, TensorBoard, ModelCheckpoint
@@ -71,6 +71,7 @@ import common
 
 
 def build_model(input_shape, language_list):
+        
     model = Sequential()
 
     # 40x1000
@@ -80,9 +81,11 @@ def build_model(input_shape, language_list):
         (3, 3),
         strides=(1, 1),
         padding='same',
-        kernel_regularizer=regularizers.l2(0.001),
+        kernel_regularizer=regularizers.l2(0.001),#0.001
         input_shape=input_shape))
     model.add(Activation('elu'))
+    # add by shishuai
+    model.add(BatchNormalization())
     model.add(MaxPooling2D(pool_size=(3, 3), strides=(2, 2), padding='same'))
 
     # 20x500
@@ -92,8 +95,10 @@ def build_model(input_shape, language_list):
         (3, 3),
         strides=(1, 1),
         padding='same',
-        kernel_regularizer=regularizers.l2(0.001)))
+        kernel_regularizer=regularizers.l2(0.001)))#0.001
     model.add(Activation('elu'))
+        # add by shishuai
+    model.add(BatchNormalization())
     model.add(MaxPooling2D(pool_size=(3, 3), strides=(2, 2), padding='same'))
 
     # 10x250
@@ -103,8 +108,10 @@ def build_model(input_shape, language_list):
         (3, 3),
         strides=(1, 1),
         padding='same',
-        kernel_regularizer=regularizers.l2(0.001)))
+        kernel_regularizer=regularizers.l2(0.001)))#0.001
     model.add(Activation('elu'))
+        # add by shishuai
+    model.add(BatchNormalization())
     model.add(MaxPooling2D(pool_size=(3, 3), strides=(2, 2), padding='same'))
 
     # 5x125
@@ -114,8 +121,10 @@ def build_model(input_shape, language_list):
         (3, 5),
         strides=(1, 1),
         padding='same',
-        kernel_regularizer=regularizers.l2(0.001)))
+        kernel_regularizer=regularizers.l2(0.001)))#0.001
     model.add(Activation('elu'))
+        # add by shishuai
+    model.add(BatchNormalization())
     model.add(MaxPooling2D(pool_size=(3, 5), strides=(1, 5), padding='same'))
 
     # 5x25
@@ -125,8 +134,10 @@ def build_model(input_shape, language_list):
         (3, 5),
         strides=(1, 1),
         padding='same',
-        kernel_regularizer=regularizers.l2(0.001)))
+        kernel_regularizer=regularizers.l2(0.001)))#0.001
     model.add(Activation('elu'))
+        # add by shishuai
+    model.add(BatchNormalization())
     model.add(MaxPooling2D(pool_size=(3, 5), strides=(1, 5), padding='same'))
     model.add(AveragePooling2D(
         pool_size=(5, 5),
@@ -140,18 +151,20 @@ def build_model(input_shape, language_list):
     model.add(Dense(
         32,
         activation='elu',
-        kernel_regularizer=regularizers.l2(0.001)))
+        kernel_regularizer=regularizers.l2(0.001)))#0.001
 
     model.add(Dropout(0.5))
 
     model.add(Dense(len(language_list)))
     model.add(Activation('softmax'))
 
-    sgd = SGD(lr=0.01, decay=1e-6, momentum=0.0, nesterov=False)
-
+#     sgd = SGD(lr=args.learning_rate, decay=args.decay, momentum=args.momentum, nesterov=False)
+    adam = Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-08)
+    
     model.compile(
         loss='categorical_crossentropy',
-        optimizer=sgd,
+#         optimizer=sgd,
+        optimizer=adam,
         metrics=['accuracy'])
 
     return model
@@ -275,6 +288,7 @@ if __name__ == "__main__":
                 min_delta=0,
                 patience=7,
                 verbose=0,
+                restore_best_weights = True,
                 mode='auto')
 
             model.fit(
